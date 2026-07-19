@@ -19,8 +19,8 @@ function getChangedFiles() {
   }
 
   try {
-    // Detect changes compared to main branch or previous commit
-    const output = execSync('git diff --name-only origin/main...HEAD || git diff --name-only HEAD~1', { encoding: 'utf8' });
+    // Detect changes compared to master branch or previous commit
+    const output = execSync('git diff --name-only origin/master...HEAD || git diff --name-only HEAD~1', { encoding: 'utf8' });
     return output
       .split('\n')
       .map(f => f.trim())

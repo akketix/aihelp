@@ -19,7 +19,7 @@ Traditional wikis (like MediaWiki or Wikipedia) have significant drawbacks:
 
 ---
 
-## Why Not Edit GitHub/Gitea Directly?
+## Why Not Edit GitHub Directly?
 
 While Git-backed documentation (Docs-as-Code) solves quality control, it introduces a high contribution barrier:
 

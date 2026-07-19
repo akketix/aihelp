@@ -51,5 +51,5 @@ Consistent with the **Apache License 2.0** under which this wiki is licensed:
 If you contribute edits or write new articles:
 
 * **Fact-Checking**: You are responsible for ensuring your code compilations and specifications are checked against official developer documentations.
-* **Safety**: Submitting intentionally malicious code, stealthy prompt injections, or telemetry bypasses will result in permanent banning from the repository and Gitea/GitHub organizations.
+* **Safety**: Submitting intentionally malicious code, stealthy prompt injections, or telemetry bypasses will result in permanent banning from the repository and GitHub organizations (with Gitea acting as our private, internal staging loop testbed).
 * **Corrections**: If you identify a flaw, outdated metric, or syntax error, you are encouraged to submit a correction immediately using the **"Edit Page on Website"** link.

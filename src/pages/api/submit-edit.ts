@@ -7,8 +7,46 @@ const GIT_API_URL = process.env.GIT_API_URL || import.meta.env.GIT_API_URL || 'h
 const GIT_REPO = process.env.GIT_REPO || import.meta.env.GIT_REPO || 'owner/repo';
 const GIT_TOKEN = process.env.GIT_TOKEN || import.meta.env.GIT_TOKEN;
 
+// --- Rate Limiting (in-memory, per-IP) ---
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_MAX_REQUESTS = 5;            // max 5 submissions per IP per window
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitStore.get(ip);
+
+  if (!entry || now >= entry.resetAt) {
+    rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
+// Periodically purge expired entries to prevent memory leaks (every 10 minutes)
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitStore) {
+    if (now >= entry.resetAt) rateLimitStore.delete(ip);
+  }
+}, 10 * 60 * 1000);
+
 export const POST: APIRoute = async ({ request }) => {
   try {
+    // --- Rate limit check ---
+    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || request.headers.get('x-real-ip')
+      || 'unknown';
+
+    if (isRateLimited(clientIp)) {
+      return new Response(
+        JSON.stringify({ message: 'Rate limit exceeded. Please try again later.' }),
+        { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': '3600' } }
+      );
+    }
+
     const { filePath, content, commitMessage } = await request.json();
 
     if (!filePath || !content || !commitMessage) {

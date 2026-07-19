@@ -27,6 +27,11 @@ export default defineConfig({
                       { label: 'Large Language Models', slug: 'concepts/llms' },
                       { label: 'Retrieval-Augmented Generation', slug: 'concepts/rag' },
                       { label: 'Prompt Engineering', slug: 'concepts/prompt-engineering' },
+                      { label: 'Agent Design Patterns', slug: 'concepts/agent-design-patterns' },
+                      { label: 'Session State & Memory', slug: 'concepts/session-memory-dbs' },
+                      { label: 'Game Engine Bridges', slug: 'concepts/game-engine-bridges' },
+                      { label: 'Soly Loop Engineering', slug: 'concepts/loop-engineering' },
+                      { label: 'Security Guardrails', slug: 'concepts/security-guardrails' },
                   ],
               },
               {
@@ -35,6 +40,7 @@ export default defineConfig({
                       { label: 'Getting Started', slug: 'guides/getting-started' },
                       { label: 'How to Contribute', slug: 'guides/contributing' },
                       { label: 'Usage & Due Diligence Policy', slug: 'guides/usage-policy' },
+                      { label: 'DigitalOcean Deployment', slug: 'guides/deployment-walkthrough' },
                   ],
               },
               {

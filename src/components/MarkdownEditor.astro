@@ -1,0 +1,393 @@
+---
+// MarkdownEditor.astro - Rich modal and textarea client editor
+---
+
+<div id="editor-modal-overlay" class="modal-overlay hidden">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 id="modal-title-text">Edit Wiki Topic</h3>
+      <button id="close-editor-btn" class="close-btn" aria-label="Close editor">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </button>
+    </div>
+
+    <form id="wiki-edit-form" class="modal-form">
+      <input type="hidden" id="editor-file-path" name="filePath" value="" />
+      
+      <div class="form-group">
+        <label for="commit-message-input">Change Summary (Required)</label>
+        <input 
+          type="text" 
+          id="commit-message-input" 
+          name="commitMessage" 
+          placeholder="e.g., Fix typo in context window size" 
+          required 
+        />
+      </div>
+
+      <div class="form-group flex-grow">
+        <label for="markdown-content-input">Content (Markdown)</label>
+        <textarea 
+          id="markdown-content-input" 
+          name="content" 
+          rows="15" 
+          spellcheck="true"
+          required
+        ></textarea>
+      </div>
+
+      <div id="editor-error-msg" class="error-msg hidden"></div>
+      <div id="editor-success-msg" class="success-msg hidden"></div>
+
+      <div class="modal-footer">
+        <button type="button" id="cancel-editor-btn" class="btn btn-secondary">Cancel</button>
+        <button type="submit" id="submit-editor-btn" class="btn btn-primary">
+          <span id="btn-text">Submit Change Request</span>
+          <span id="btn-spinner" class="spinner hidden"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Client-side interactions
+  const overlay = document.getElementById('editor-modal-overlay');
+  const form = document.getElementById('wiki-edit-form') as HTMLFormElement;
+  const openBtn = document.getElementById('open-editor-btn');
+  const closeBtn = document.getElementById('close-editor-btn');
+  const cancelBtn = document.getElementById('cancel-editor-btn');
+  const filePathInput = document.getElementById('editor-file-path') as HTMLInputElement;
+  const contentInput = document.getElementById('markdown-content-input') as HTMLTextAreaElement;
+  const commitMsgInput = document.getElementById('commit-message-input') as HTMLInputElement;
+  const submitBtn = document.getElementById('submit-editor-btn') as HTMLButtonElement;
+  const btnText = document.getElementById('btn-text');
+  const btnSpinner = document.getElementById('btn-spinner');
+  const errorMsg = document.getElementById('editor-error-msg');
+  const successMsg = document.getElementById('editor-success-msg');
+  const rawContentTemplate = document.getElementById('raw-markdown-content');
+
+  function openModal() {
+    if (!overlay || !filePathInput || !contentInput || !rawContentTemplate || !openBtn) return;
+    
+    // Load the raw markdown from template
+    const rawMarkdown = rawContentTemplate.innerHTML;
+    contentInput.value = rawMarkdown;
+
+    // Load path and title metadata
+    const filePath = openBtn.getAttribute('data-file-path') || '';
+    const pageTitle = openBtn.getAttribute('data-page-title') || '';
+    filePathInput.value = filePath;
+
+    const modalTitle = document.getElementById('modal-title-text');
+    if (modalTitle) {
+      modalTitle.textContent = `Edit Topic: ${pageTitle}`;
+    }
+
+    // Reset status
+    if (errorMsg) errorMsg.classList.add('hidden');
+    if (successMsg) successMsg.classList.add('hidden');
+    if (commitMsgInput) commitMsgInput.value = '';
+    
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Lock background scroll
+  }
+
+  function closeModal() {
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  if (openBtn) openBtn.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+  // Close modal when clicking outside content container
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeModal();
+      }
+    });
+  }
+
+  // Handle Form Submission
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!filePathInput || !contentInput || !commitMsgInput || !submitBtn || !btnText || !btnSpinner || !errorMsg || !successMsg) return;
+
+      // Reset feedback messages
+      errorMsg.classList.add('hidden');
+      successMsg.classList.add('hidden');
+
+      // Set Loading State
+      submitBtn.disabled = true;
+      btnText.textContent = 'Creating Change Request...';
+      btnSpinner.classList.remove('hidden');
+
+      try {
+        const payload = {
+          filePath: filePathInput.value,
+          content: contentInput.value,
+          commitMessage: commitMsgInput.value
+        };
+
+        const response = await fetch('/api/submit-edit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to submit changes');
+        }
+
+        // Show Success state
+        successMsg.innerHTML = `🎉 **Success!** Your Change Request was created: <a href="${data.prUrl}" target="_blank" class="pr-link">View Pull Request #${data.prNumber}</a>. The AI Council will review it shortly.`;
+        successMsg.classList.remove('hidden');
+        
+        // Disable form fields after success
+        contentInput.disabled = true;
+        commitMsgInput.disabled = true;
+        submitBtn.classList.add('hidden');
+        if (cancelBtn) cancelBtn.textContent = 'Close';
+      } catch (err: any) {
+        // Show Error
+        errorMsg.textContent = `❌ Error: ${err.message || 'An unexpected error occurred.'}`;
+        errorMsg.classList.remove('hidden');
+
+        // Reset Submit Button
+        submitBtn.disabled = false;
+        btnText.textContent = 'Submit Change Request';
+        btnSpinner.classList.add('hidden');
+      }
+    });
+  }
+</script>
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  .modal-overlay.hidden {
+    display: none !important;
+  }
+
+  .modal-container {
+    background-color: var(--sl-color-bg-sidebar);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.75rem;
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--sl-shadow-lg);
+    animation: modal-fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modal-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: var(--sl-text-lg);
+    color: var(--sl-color-text-headers);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--sl-color-text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: color 0.2s, background-color 0.2s;
+  }
+
+  .close-btn:hover {
+    color: var(--sl-color-text);
+    background-color: var(--sl-color-hairline-light);
+  }
+
+  .modal-form {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-group.flex-grow {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-size: var(--sl-text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sl-color-text-muted);
+  }
+
+  .form-group input, 
+  .form-group textarea {
+    background-color: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.375rem;
+    color: var(--sl-color-text);
+    padding: 0.75rem;
+    font-size: var(--sl-text-body);
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+
+  .form-group textarea {
+    font-family: var(--__sl-font-mono, monospace);
+    resize: vertical;
+    flex-grow: 1;
+    min-height: 250px;
+    line-height: 1.5;
+  }
+
+  .form-group input:focus, 
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--sl-color-text-accent);
+  }
+
+  .error-msg {
+    padding: 0.75rem 1rem;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #ef4444;
+    border-radius: 0.375rem;
+    font-size: var(--sl-text-sm);
+  }
+
+  .success-msg {
+    padding: 0.75rem 1rem;
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #10b981;
+    border-radius: 0.375rem;
+    font-size: var(--sl-text-sm);
+    line-height: 1.5;
+  }
+
+  .success-msg :global(.pr-link) {
+    color: var(--sl-color-text-accent);
+    text-decoration: underline;
+    font-weight: 600;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: 1px solid var(--sl-color-hairline);
+    margin-top: 0.5rem;
+    padding-top: 1.25rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .btn-primary {
+    background-color: var(--sl-color-text-accent);
+    color: var(--sl-color-text-invert);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--sl-color-text-accent-hover);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--sl-color-hairline);
+    color: var(--sl-color-text);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--sl-color-hairline-light);
+  }
+
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .hidden {
+    display: none !important;
+  }
+</style>

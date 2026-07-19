@@ -1,6 +1,12 @@
 {
   "name": "mneurix-wiki",
   "region": "fra",
+  "domains": [
+    {
+      "domain": "aihelp.mneurix.dev",
+      "type": "PRIMARY"
+    }
+  ],
   "features": [
     "buildpack-stack=ubuntu-22"
   ],

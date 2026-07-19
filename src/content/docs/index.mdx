@@ -18,6 +18,31 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
+## The Project North Star
+
+Our mission is to provide developers with **factual, highly structured, and actionable data** to construct AI "builds" (applications) using optimal components. Modeled in the spirit of gaming databases (like Fextralife/ESO-Hub), this wiki serves as a reference catalog and quest-like walkthrough engine for AI Engineering.
+
+---
+
+## Catalog Scope
+
+To maintain data integrity and prevent value dilution, we enforce strict content boundaries:
+
+<CardGrid>
+	<Card title="In-Scope: AI Mechanics" icon="approve-list">
+		- **Component Database**: Model stats, context windows, vector DB specs, and tool pricing.
+		- **Implementation Recipes**: Blueprints for RAG pipelines, agents, and fine-tuning.
+		- **Formulas**: Context memory scaling, RRF search fusion math, and latency formulas.
+	</Card>
+	<Card title="Out-of-Scope: Hype & Drama" icon="close">
+		- **Corporate News**: Executive hires, funding announcements, or community gossip.
+		- **Vague Speculation**: Opinions about AGI timelines or subjective philosophy.
+		- **Marketing**: Product pitches lacking benchmarks, architecture maps, or open code.
+	</Card>
+</CardGrid>
+
+---
+
 ## What is the AI Help Wiki?
 
 <CardGrid stagger>
@@ -27,8 +52,8 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 	<Card title="AI Council Evaluation" icon="comment-alt">
 		PRs are automatically evaluated by AI agents checking for accuracy (Ground Truth) and style alignment.
 	</Card>
-	<Card title="Open to Contributions" icon="pencil">
-		Easily edit any page by clicking the "Edit this page" link to submit a quick update.
+	<Card title="Shared Accountability" icon="shield">
+		We perform reasonable due diligence (linting and AI fact-checking), but contributors and readers are accountable for verifying code before production deploy.
 	</Card>
 	<Card title="High Performance" icon="rocket">
 		Built on Astro Starlight, compiling to optimized static HTML with zero client-side JS by default.

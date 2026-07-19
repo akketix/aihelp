@@ -15,6 +15,7 @@ Vector Databases are critical components for storing and retrieving semantic emb
 | **pgvector** | HNSW / IVFFlat | PostgreSQL Extension | Moderate | Moderate | Relational data aggregation, unified DB stacks |
 | **Milvus** | HNSW / IVF / ANNS | Distributed Cluster | Fast | Very High | Enterprise-grade, multi-billion vector scale |
 | **Pinecone** | Proprietary | Managed SaaS | Variable | Managed | Serverless setups, zero-ops infrastructure |
+| **ChromaDB** | HNSW / hnswlib | In-Process / Local | Fast (Prototypes) | Low (In-Process) | Rapid prototyping, local Python notebooks, lightweight agents |
 
 ---
 

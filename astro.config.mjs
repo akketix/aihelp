@@ -32,6 +32,7 @@ export default defineConfig({
                       { label: 'Game Engine Bridges', slug: 'concepts/game-engine-bridges' },
                       { label: 'Soly Loop Engineering', slug: 'concepts/loop-engineering' },
                       { label: 'Security Guardrails', slug: 'concepts/security-guardrails' },
+                      { label: 'Agent Integration Architectures', slug: 'concepts/integration-architectures' },
                   ],
               },
               {

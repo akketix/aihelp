@@ -42,6 +42,32 @@ For Llama 3 8B ($L=32$, $H=8$, $D=128$, at batch size $B=1$ and context length $
 
 ---
 
+## Mechanics: VRAM Scaling & Quantization
+
+Serving a model requires enough VRAM to hold the model weights plus the KV Cache and activation tensors.
+
+### Model Weights Footprint Formula
+
+For a model with $P$ billion parameters, the VRAM required to load the weights scales with the quantization bit-width:
+
+\[VRAM_{Weights} \approx \frac{P \times Q}{8} \times 1.2 \text{ GB}\]
+
+Where:
+
+- **$P$**: Number of parameters in billions (e.g., 8 for Llama 3 8B, 70 for Llama 3 70B).
+- **$Q$**: Quantization precision in bits (e.g., 16 for standard FP16, 8 for INT8, 4 for GGUF/AWQ INT4).
+- **$1.2$**: A 20% safety overhead margin for system runtimes and CUDA contexts.
+
+### Quantization Spec Sheet
+
+| Quantization Level | VRAM Requirement (Llama 8B) | VRAM Requirement (Llama 70B) | Perplexity Loss | Optimal Hardware |
+| :--- | :--- | :--- | :--- | :--- |
+| **FP16** (16-bit) | ~19.2 GB | ~168.0 GB | None (Baseline) | Server GPUs (A100, H100) |
+| **INT8** (8-bit) | ~9.6 GB | ~84.0 GB | < 1% | Prosumer (RTX 3090, 4090) |
+| **INT4** (4-bit) | ~4.8 GB | ~42.0 GB | ~1-3% | Consumer Desktop / Mac Studio |
+
+---
+
 ## Actionable Build: Token Estimation Script
 
 When constructing prompts, you must calculate token counts locally to prevent API context-overflow failures. Here is a TypeScript helper using `tiktoken`:

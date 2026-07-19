@@ -36,6 +36,30 @@ Where:
 
 ---
 
+## Mechanics: Chunking Strategies
+
+Before embedding and storing documents, text must be divided into chunks. The strategy selected determines the quality of semantic retrieval:
+
+### Chunking Spec Sheet
+
+| Chunking Strategy | Mechanics | Computation Cost | Optimal Use Case |
+| :--- | :--- | :--- | :--- |
+| **Fixed-Size** | Split at exact token/character length (e.g., 500 characters) with overlap | Low | Standard search, flat documents |
+| **Recursive Character** | Split hierarchically using paragraph, sentence, and word boundaries | Low-Moderate | Structured text, code files |
+| **Semantic Distance** | Split when semantic embedding similarity between sentences drops below a threshold | High | Narrative text, transcripts, context-rich docs |
+
+---
+
+## Mechanics: Evaluation Metrics (Ragas Framework)
+
+Measuring your RAG pipeline's quality requires automated tests to ensure your LLM isn't hallucinating or drawing from irrelevant context. The three primary metrics are:
+
+1. **Faithfulness**: Measures if the generated answer is derived *only* from the retrieved context (detects hallucinations).
+2. **Context Recall**: Measures if the retriever found *all* the relevant information needed to answer the question.
+3. **Answer Relevance**: Measures if the generated response directly addresses the user's query.
+
+---
+
 ## Walkthrough: Python Hybrid RAG Pipeline
 
 Here is the implementation code for a standard hybrid retrieval and reranking build using `Qdrant` and `sentence-transformers`:

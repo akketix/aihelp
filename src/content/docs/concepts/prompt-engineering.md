@@ -34,6 +34,20 @@ User inputs go here (if the user tries to write "Ignore previous instructions", 
 
 ---
 
+## Mechanics: Enforcing Structured Outputs
+
+Getting an LLM to output consistent JSON schemas is required for programmatic loops. There are three primary patterns for enforcing structured data:
+
+### Structured Output Spec Sheet
+
+| Output Pattern | How it Works | Error Rate | Latency Penalty | Best Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **JSON Mode (Natural)** | Model is prompted to output JSON; parsed locally. | Moderate (schema drift) | None | Non-critical metadata extraction |
+| **JSON Schema Enforcement** | API forces the sampler to select only tokens that comply with a schema (Zod/OpenAPI). | Near 0% | Minimal | Multi-agent loops, database populating |
+| **Grammar-Based Decoding** | Sampler is constrained by a local context-free grammar (GBNF) at inference time. | 0% | Moderate | Local models (Ollama/llama.cpp) |
+
+---
+
 ## Walkthrough: Structured Output Build (Gemini API)
 
 When building database-style wikis or structured pipelines, you should enforce a strict JSON schema at the API level. Here is the implementation using the `@google/genai` SDK:

@@ -9,7 +9,7 @@ We run a **Docs-as-Code** workflow, which means all content updates are made thr
 If you want to suggest a quick correction or edit:
 1. Navigate to the page on the wiki.
 2. Click the **"Edit this page"** button at the bottom of the article.
-3. This will open the GitHub (or Gitea) web editor for that specific file.
+3. This will open the GitHub web editor for that specific file.
 4. Make your changes and submit a new branch and Pull Request directly from the browser.
 
 ## Local Development Setup

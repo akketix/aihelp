@@ -31,7 +31,7 @@ Run all commands from the root of the project:
 ```
 .
 ├── .github/workflows/
-│   └── ci.yml             # GitHub/Gitea CI Actions pipeline
+│   └── ci.yml             # GitHub CI Actions pipeline
 ├── public/
 │   └── ads.txt            # Ad network verification file
 ├── scripts/

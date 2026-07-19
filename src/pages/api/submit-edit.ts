@@ -2,10 +2,10 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-// Configure Gitea variables (Gitea API matches GitHub API for contents/pulls)
-const GITEA_API_URL = process.env.GITEA_API_URL || import.meta.env.GITEA_API_URL || 'http://localhost:3000/api/v1';
-const GITEA_REPO = process.env.GITEA_REPO || import.meta.env.GITEA_REPO || 'owner/repo';
-const GITEA_TOKEN = process.env.GITEA_TOKEN || import.meta.env.GITEA_TOKEN;
+// Configure Git repository target variables (API supports any standard GitHub-compatible API)
+const GIT_API_URL = process.env.GIT_API_URL || import.meta.env.GIT_API_URL || 'https://api.github.com';
+const GIT_REPO = process.env.GIT_REPO || import.meta.env.GIT_REPO || 'owner/repo';
+const GIT_TOKEN = process.env.GIT_TOKEN || import.meta.env.GIT_TOKEN;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -18,30 +18,30 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    if (!GITEA_TOKEN) {
-      console.warn('⚠️ GITEA_TOKEN is not configured. Running in Mock API Mode.');
+    if (!GIT_TOKEN) {
+      console.warn('⚠️ GIT_TOKEN is not configured. Running in Mock API Mode.');
       // Simulate success for local testing/mock environments
       const mockPrNumber = Math.floor(Math.random() * 100) + 1;
       return new Response(
         JSON.stringify({
           message: 'Mock submission success.',
           prNumber: mockPrNumber,
-          prUrl: `${GITEA_API_URL.replace('/api/v1', '')}/${GITEA_REPO}/pulls/${mockPrNumber}`
+          prUrl: `${GIT_API_URL.replace('/api/v1', '')}/${GIT_REPO}/pulls/${mockPrNumber}`
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     const headers = {
-      'Authorization': `token ${GITEA_TOKEN}`,
+      'Authorization': `token ${GIT_TOKEN}`,
       'Content-Type': 'application/json',
       'User-Agent': 'AI-Wiki-OnSite-Editor'
     };
 
-    // 1. Get the latest commit SHA of the main branch (to branch off from)
+    // 1. Get the latest commit SHA of the main/master branch (to branch off from)
     // and the file's current SHA (to commit changes)
     let fileSha = '';
-    const fileUrl = `${GITEA_API_URL}/repos/${GITEA_REPO}/contents/${filePath}?ref=main`;
+    const fileUrl = `${GIT_API_URL}/repos/${GIT_REPO}/contents/${filePath}?ref=master`;
     
     try {
       const fileRes = await fetch(fileUrl, { headers });
@@ -55,14 +55,14 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 2. Create a unique branch name
     const branchName = `edit-patch-${Date.now()}`;
-    const createBranchUrl = `${GITEA_API_URL}/repos/${GITEA_REPO}/branches`;
+    const createBranchUrl = `${GIT_API_URL}/repos/${GIT_REPO}/branches`;
     
     const branchRes = await fetch(createBranchUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         new_branch_name: branchName,
-        old_branch_name: 'main'
+        old_branch_name: 'master'
       })
     });
 
@@ -73,7 +73,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 3. Commit the updated file content (encoded in Base64) to the new branch
     const contentBase64 = Buffer.from(content).toString('base64');
-    const commitFileUrl = `${GITEA_API_URL}/repos/${GITEA_REPO}/contents/${filePath}`;
+    const commitFileUrl = `${GIT_API_URL}/repos/${GIT_REPO}/contents/${filePath}`;
     
     const commitBody: any = {
       branch: branchName,
@@ -101,13 +101,13 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // 4. Create the Pull Request (Change Request)
-    const prUrl = `${GITEA_API_URL}/repos/${GITEA_REPO}/pulls`;
+    const prUrl = `${GIT_API_URL}/repos/${GIT_REPO}/pulls`;
     
     const prRes = await fetch(prUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        base: 'main',
+        base: 'master',
         head: branchName,
         title: commitMessage,
         body: `### On-Site Wiki Contribution\n\nThis is an automated contribution submitted anonymously from the wiki interface.\n\n**Proposed Changes:**\n* File modified: \`${filePath}\`\n* Summary: ${commitMessage}`

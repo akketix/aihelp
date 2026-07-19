@@ -209,7 +209,7 @@ async function main() {
   writeFileSync('ai-council-report.md', report, 'utf8');
   console.log('💾 Saved report to ai-council-report.md');
 
-  // Post to PR if running in a GitHub/Gitea Actions environment
+  // Post to PR if running in a GitHub Actions environment
   await postCommentToPR(report);
 }
 

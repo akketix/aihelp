@@ -1,3 +1,3 @@
-# Google AdSense Placeholder (Replace with your actual publisher ID)
-# Format: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+# ads.txt — authorizes Google AdSense to sell ad inventory on this domain.
+# Served at /ads.txt. The publisher ID is the real AdSense account ID.
+google.com, pub-4548561758943925, DIRECT, f08c47fec0942fa0

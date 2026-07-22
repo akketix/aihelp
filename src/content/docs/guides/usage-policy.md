@@ -52,4 +52,4 @@ If you contribute edits or write new articles:
 
 * **Fact-Checking**: You are responsible for ensuring your code compilations and specifications are checked against official developer documentations.
 * **Safety**: Submitting intentionally malicious code, stealthy prompt injections, or telemetry bypasses will result in permanent banning from the repository and associated organizations.
-* **Corrections**: If you identify a flaw, outdated metric, or syntax error, you are encouraged to submit a correction immediately using the **"Edit Page on Website"** link.
+* **Corrections**: If you identify a flaw, outdated metric, or syntax error, you are encouraged to submit a correction immediately using the **"Edit this page on GitHub"** link.

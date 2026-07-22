@@ -19,7 +19,7 @@ Before starting, ensure you have:
 
 ## Step 1: Astro Configuration
 
-To support backend API routes (like the on-site editor `/api/submit-edit`), the wiki must run as a dynamic Node.js server rather than a purely static build.
+The wiki runs as a dynamic Node.js server (Astro's `@astrojs/node` adapter, `output: 'server'`) so it can serve runtime API routes. (Community editing now uses GitHub's native pull-request flow; the former on-site editor endpoint `/api/submit-edit` is retired and returns 410 Gone.)
 
 In your `astro.config.mjs`, verify the `@astrojs/node` adapter is configured:
 

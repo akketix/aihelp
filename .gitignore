@@ -26,3 +26,9 @@ pnpm-debug.log*
 
 # AI Council Reports
 ai-council-report.md
+
+# Cloudflare Wrangler local state (must not be committed)
+.wrangler/
+
+# dev server logs
+dev-server-log.txt

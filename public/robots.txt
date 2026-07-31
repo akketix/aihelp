@@ -1,0 +1,9 @@
+# Google AdSense Crawler
+User-agent: Mediapartners-Google
+Allow: /
+
+# General Search Crawlers
+User-agent: *
+Allow: /
+
+Sitemap: https://aihelp.mneurix.dev/sitemap-index.xml

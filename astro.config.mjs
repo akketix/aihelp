@@ -9,14 +9,18 @@ import node from '@astrojs/node';
 // dashboard), which is embedded in adsbygoogle.js — so we load the script directly
 // and Google shows the consent message where required. No custom consent banner.
 const ADSENSE_CLIENT =
-  process.env.PUBLIC_ADSENSE_CLIENT ?? 'ca-pub-0000000000000000';
+  process.env.PUBLIC_ADSENSE_CLIENT ?? 'ca-pub-4548561758943925';
 const adsActive =
   ADSENSE_CLIENT.startsWith('ca-pub-') &&
   !ADSENSE_CLIENT.includes('0000000000000000');
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://aihelp.mneurix.dev',
   output: 'server',
+  security: {
+    checkOrigin: false,
+  },
   adapter: node({
     mode: 'standalone',
   }),
@@ -30,20 +34,27 @@ export default defineConfig({
       components: {
         EditLink: './src/components/CustomEditLink.astro',
       },
-      // AdSense loaded directly on every page (only when a real publisher ID is set).
-      // Consent for EEA/UK is handled by Google's CMP — no custom banner.
-      head: adsActive
-        ? [
-            {
-              tag: 'script',
-              attrs: {
-                src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + ADSENSE_CLIENT,
-                async: true,
-                crossorigin: 'anonymous',
+      head: [
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'google-adsense-account',
+            content: 'ca-pub-4548561758943925',
+          },
+        },
+        ...(adsActive
+          ? [
+              {
+                tag: 'script',
+                attrs: {
+                  src: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + ADSENSE_CLIENT,
+                  async: true,
+                  crossorigin: 'anonymous',
+                },
               },
-            },
-          ]
-        : [],
+            ]
+          : []),
+      ],
       sidebar: [
         {
           label: 'Core Concepts',

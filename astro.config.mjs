@@ -75,6 +75,7 @@ export default defineConfig({
           label: 'Contributing & Policies',
           items: [
             { label: 'Getting Started', slug: 'guides/getting-started' },
+            { label: 'Local LLM VRAM Optimization', slug: 'guides/local-llm-vram-optimization' },
             { label: 'How to Contribute', slug: 'guides/contributing' },
             { label: 'Usage & Due Diligence Policy', slug: 'guides/usage-policy' },
             { label: 'Privacy Policy', slug: 'guides/privacy-policy' },

@@ -1,0 +1,33 @@
+---
+// <Term id="webgpu" /> — inline gloss for a key term.
+// Renders a focusable span with a hover/focus/tap tooltip showing the plain
+// definition, plus a native title fallback. Deliberately NOT a link, so it's
+// safe inside other links (e.g. the pillar cards). Styles live in
+// /styles/gloss.css (shared with the rehype-gloss markdown plugin); the
+// tap-toggle script is global (see Layout.astro). Full reference: /glossary.
+import { termById } from "../data/glossary";
+
+let _n = 0;
+interface Props {
+	/** Glossary term id (see src/data/glossary.ts). */
+	id: string;
+	/** Override the displayed text (defaults to the term itself). */
+	display?: string;
+}
+const { id, display } = Astro.props;
+const t = termById(id); // throws at build time if the id is wrong
+const label = display ?? t.term;
+const n = ++_n;
+const tipId = `gloss-tip-${id}-${n}`;
+---
+
+<span
+	class="gloss"
+	tabindex="0"
+	role="term"
+	aria-describedby={tipId}
+	title={`${t.term} — ${t.plain}`}
+>
+	<span class="gloss-word">{label}</span>
+	<span class="gloss-tip" id={tipId} role="tooltip"><strong>{t.term}.</strong> {t.plain}</span>
+</span>

@@ -1,0 +1,44 @@
+---
+// <GlossText text="…local multi-agent harness…" /> — auto-glosses a plain string
+// by wrapping known glossary terms (first occurrence each) in <Term> tooltips.
+// Use for data-driven strings (pillar blurbs, the engine body) where you can't
+// drop <Term> components inline. Markdown posts are auto-glossed separately by
+// the rehype-gloss plugin.
+import Term from "./Term.astro";
+import { GLOSSARY } from "../data/glossary";
+
+function escapeRe(s: string): string {
+	return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+const AUTO = GLOSSARY.filter((t) => t.auto !== false);
+const forms = AUTO.flatMap((t) => [t.term, ...(t.aliases ?? [])].map((f) => ({ re: escapeRe(f), id: t.id })));
+forms.sort((a, b) => b.re.length - a.re.length);
+const combined = new RegExp(`(^|[^A-Za-z0-9])(${forms.map((f) => f.re).join("|")})($|[^A-Za-z0-9])`, "gi");
+const idByFormLower = new Map<string, string>();
+for (const t of AUTO) for (const f of [t.term, ...(t.aliases ?? [])]) idByFormLower.set(f.toLowerCase(), t.id);
+
+interface Props {
+	text: string;
+}
+const { text } = Astro.props;
+
+const out: Array<{ id?: string; display: string }> = [];
+const used = new Set<string>();
+let last = 0;
+combined.lastIndex = 0;
+let m: RegExpExecArray | null;
+while ((m = combined.exec(text)) !== null) {
+	const pre = m[1] ?? "";
+	const matched = m[2] ?? "";
+	const id = idByFormLower.get(matched.toLowerCase());
+	if (!id || used.has(id)) continue;
+	const start = text.slice(last, m.index) + pre;
+	if (start) out.push({ display: start });
+	out.push({ id, display: matched });
+	used.add(id);
+	last = m.index + pre.length + matched.length;
+}
+if (last < text.length) out.push({ display: text.slice(last) });
+---
+
+{out.map((seg) => (seg.id ? <Term id={seg.id} display={seg.display} /> : <Fragment>{seg.display}</Fragment>))}

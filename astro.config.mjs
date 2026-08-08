@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import node from '@astrojs/node';
+import { rehypeGloss } from './src/lib/gloss/rehype-gloss.ts';
 
 // ---- AdSense (env-driven; inert until a real ca-pub-... is set) ----
 // Publisher ID from PUBLIC_ADSENSE_CLIENT (BUILD env on the mneurix-wiki DO app).
@@ -21,6 +22,9 @@ export default defineConfig({
   security: {
     checkOrigin: false,
   },
+  markdown: {
+    rehypePlugins: [rehypeGloss],
+  },
   adapter: node({
     mode: 'standalone',
   }),
@@ -34,7 +38,13 @@ export default defineConfig({
       components: {
         EditLink: './src/components/CustomEditLink.astro',
       },
+      customCss: ['./src/styles/gloss.css'],
       head: [
+        {
+          tag: 'script',
+          attrs: {},
+          content: `document.addEventListener("click",function(e){var t=e.target instanceof Element?e.target.closest(".gloss"):null;document.querySelectorAll(".gloss.is-open").forEach(function(el){if(el!==t)el.classList.remove("is-open");});if(t&&window.matchMedia("(pointer: coarse)").matches)t.classList.toggle("is-open");});document.addEventListener("keydown",function(e){if(e.key==="Escape")document.querySelectorAll(".gloss.is-open").forEach(function(el){el.classList.remove("is-open");});});`,
+        },
         {
           tag: 'meta',
           attrs: {

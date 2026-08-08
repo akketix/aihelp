@@ -1,0 +1,25 @@
+---
+title: Glossary
+description: Plain-English definitions of the AI and tech terms used across the AI Help Wiki.
+---
+
+import { termsByCategory } from '../../../data/glossary';
+
+We use the real terms the AI field uses — and explain them in plain English right
+next to where they appear (hover or tap a dotted term on any page). This page is
+the full reference: {termsByCategory().reduce((n, g) => n + g.terms.length, 0)} terms,
+grouped by area.
+
+{termsByCategory().map((g) => (
+  <section>
+    <h2 id={g.category.toLowerCase().replace(/[^a-z]+/g, '-')}>{g.category}</h2>
+    <dl>
+      {g.terms.map((t) => (
+        <div id={t.id} style={{ paddingBlock: '10px', borderTop: '1px solid var(--sl-color-hairline)', scrollMarginTop: '5rem' }}>
+          <dt><strong>{t.term}</strong></dt>
+          <dd>{t.plain}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+))}
